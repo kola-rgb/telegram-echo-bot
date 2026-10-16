@@ -23,17 +23,18 @@ async def echo_bot():
             async with session.get(f'{API_URL}getUpdates?offset={offset + 1}') as response:
                 updates = await response.json()
             if updates['result']:
-                if 'text' in updates['result'][0]['message']:
-                    offset = updates['result'][0]['update_id']
-                    chat_id = updates['result'][0]['message']['from']['id']
-                    text = updates['result'][0]['message']['text']
-                    print(f'id: {chat_id} написал: \'{text}\', дата: {now.strftime("%d.%m.%Y, время: %H:%M:%S")}')
-                    task = send_message(offset, chat_id, session, text)
-                    tasks.append(task)
-                else:
-                    offset = updates['result'][0]['update_id']
-                    chat_id = updates['result'][0]['message']['from']['id']
-                    print(f'id:{chat_id} отправил гифку, фото или картинку, дата: {now.strftime("%d.%m.%Y, время: %H:%M:%S")}')
+                for i in updates['result']:
+                    if 'text' in i['message']:
+                        offset = i['update_id']
+                        chat_id = i['message']['from']['id']
+                        text = i['message']['text']
+                        print(f'id: {chat_id} написал: \'{text}\', дата: {now.strftime("%d.%m.%Y, время: %H:%M:%S")}')
+                        task = send_message(offset, chat_id, session, text)
+                        tasks.append(task)
+                    else:
+                        offset = i['update_id']
+                        chat_id = i['message']['from']['id']
+                        print(f'id:{chat_id} отправил гифку, фото или картинку, дата: {now.strftime("%d.%m.%Y, время: %H:%M:%S")}')
             if tasks:
                 await asyncio.gather(*tasks)
 
