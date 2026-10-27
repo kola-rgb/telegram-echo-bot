@@ -2,34 +2,28 @@ import aiohttp
 import asyncio
 from datetime import datetime
 
-BOT_TOKEN = 'PAST'
+BOT_TOKEN = 'past'
 API_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/'
 
 
-async def send_message(chat_id, session, text):
-    async with session.post(f'{API_URL}sendMessage?chat_id={chat_id}&text={text}'):
-        pass
-
-
-async def start_message(chat_id, session):
-    async with session.post(f'{API_URL}sendMessage?chat_id={chat_id}&text=Я тут!'):
-        pass
-
-
-async def send_time(chat_id, session, now):
-    async with session.post(f'{API_URL}sendMessage?chat_id={chat_id}&text={now.strftime("%d.%m.%Y, время: %H:%M:%S")}'):
+async def send_message(payload, session):
+    URL_SEND = f'{API_URL}sendMessage'
+    async with session.post(URL_SEND, params=payload):
         pass
 
 
 async def echo_bot():
-    offset = -2
+    offset = 0
 
     print('бот запущен')
 
     async with aiohttp.ClientSession() as session:
         while True:
             tasks = []
-            async with session.get(f'{API_URL}getUpdates?offset={offset + 1}') as response:
+            URL_UPDATE = f'{API_URL}getUpdates'
+            params = {'offset': offset + 1}
+
+            async with session.get(URL_UPDATE, params=params) as response:
                 updates = await response.json()
             if updates['result']:
                 for i in updates['result']:
@@ -38,16 +32,21 @@ async def echo_bot():
                         offset = i['update_id']
                         chat_id = i['message']['from']['id']
                         text = i['message']['text']
+                        payload = {'chat_id': chat_id,
+                                   'text': text
+                                   }
                         print(f'id: {chat_id} написал: \'{text}\', дата: {now.strftime("%d.%m.%Y, время: %H:%M:%S")}')
 
                         if text == '/time':
-                            task = send_time(chat_id, session, now)
+                            payload['text'] = f'{now.strftime("%d.%m.%Y, время: %H:%M:%S")}'
+                            task = send_message(payload, session)
                             tasks.append(task)
                         elif text == '/start':
-                            task = start_message(chat_id, session)
+                            payload['text'] = 'Я тут!'
+                            task = send_message(payload, session)
                             tasks.append(task)
                         else:
-                            task = send_message(chat_id, session, text)
+                            task = send_message(payload, session)
                             tasks.append(task)
 
                     else:
