@@ -11,7 +11,7 @@ async def send_message(payload, session, now):
     if payload['text'] == '/time':
         payload['text'] = f'{now.strftime("%d.%m.%Y, время: %H:%M:%S")}'
     elif payload['text'] == '/start':
-        payload['text'] = 'Я тут!'
+        payload['text'] = 'Привет, этот бот создан для обучения'
     async with session.post(URL_SEND, params=payload):
         pass
 
