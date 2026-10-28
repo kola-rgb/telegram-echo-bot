@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 from datetime import datetime
 
-BOT_TOKEN = '8324582205:AAGIjLX_1oU81MBCo6SyaEGY6Z-2T6K7PxQ'
+BOT_TOKEN = 'past'
 API_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/'
 
 
