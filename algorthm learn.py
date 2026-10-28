@@ -2,12 +2,16 @@ import aiohttp
 import asyncio
 from datetime import datetime
 
-BOT_TOKEN = 'past'
+BOT_TOKEN = '8324582205:AAGIjLX_1oU81MBCo6SyaEGY6Z-2T6K7PxQ'
 API_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/'
 
 
-async def send_message(payload, session):
+async def send_message(payload, session, now):
     URL_SEND = f'{API_URL}sendMessage'
+    if payload['text'] == '/time':
+        payload['text'] = f'{now.strftime("%d.%m.%Y, время: %H:%M:%S")}'
+    elif payload['text'] == '/start':
+        payload['text'] = 'Я тут!'
     async with session.post(URL_SEND, params=payload):
         pass
 
@@ -37,17 +41,8 @@ async def echo_bot():
                                    }
                         print(f'id: {chat_id} написал: \'{text}\', дата: {now.strftime("%d.%m.%Y, время: %H:%M:%S")}')
 
-                        if text == '/time':
-                            payload['text'] = f'{now.strftime("%d.%m.%Y, время: %H:%M:%S")}'
-                            task = send_message(payload, session)
-                            tasks.append(task)
-                        elif text == '/start':
-                            payload['text'] = 'Я тут!'
-                            task = send_message(payload, session)
-                            tasks.append(task)
-                        else:
-                            task = send_message(payload, session)
-                            tasks.append(task)
+                        task = send_message(payload, session, now)
+                        tasks.append(task)
 
                     else:
                         offset = i['update_id']
